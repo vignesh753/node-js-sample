@@ -1,16 +1,16 @@
-name: Node.js CI/CD Practice
+name: Build & Deploy Node.js App to EC2
 
 on:
   push:
-    branches: [main]     # Trigger only when pushing to main
-  workflow_dispatch:      # Allow manual run from GitHub UI
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  build-and-run:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: ⏬ Checkout code
+      - name: ⏬ Checkout source code
         uses: actions/checkout@v4
 
       - name: 🟢 Setup Node.js
@@ -21,16 +21,8 @@ jobs:
       - name: 📦 Install dependencies
         run: npm install
 
-      - name: 🏗️ Build (if needed)
-        run: |
-          if [ -f package.json ] && grep -q '"build"' package.json; then
-            npm run build
-          else
-            echo "No build step defined"
-          fi
+      - name: 🏗️ Build the app
+        run: npm run build
 
-      - name: 🚀 Start App (test only)
-        run: |
-          nohup node index.js &
-          sleep 5
-          curl -I http://localhost:3000 || echo "App not responding"
+      - name: 🗜️ Archive `.next` build folder
+        run: tar -czf next-build.tar.gz .next
